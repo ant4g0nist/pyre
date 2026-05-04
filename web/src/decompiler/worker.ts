@@ -144,9 +144,12 @@ async function doInit(req: InitRequest) {
   if (!mod) {
     // locateFile redirects emscripten's relative-to-loader fetch (which
     // would land at /src/decompiler/pyre_decompiler.wasm and 404)
-    // back at the public-served binary.
+    // back at the public-served binary. import.meta.env.BASE_URL is
+    // injected by vite — `/` in dev, `/<repo>/` for GH Pages project
+    // pages — and ALWAYS ends with a slash, so concatenation is safe.
+    const base = import.meta.env.BASE_URL;
     mod = (await PyreDecompiler({
-      locateFile: (path: string) => `/decompiler/${path}`,
+      locateFile: (path: string) => `${base}decompiler/${path}`,
     })) as EmModule;
     api = bindApi(mod);
     try {

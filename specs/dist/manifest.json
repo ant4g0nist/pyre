@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "path": "AARCH64/data/languages/AARCH64.cspec",
+      "size": 8276
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64.ldefs",
+      "size": 3749
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64.opinion",
+      "size": 2334
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64.pspec",
+      "size": 5561
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64.sla",
+      "size": 491953
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64_apple.cspec",
+      "size": 8548
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64_golang.cspec",
+      "size": 10038
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64_ilp32.cspec",
+      "size": 6359
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64_swift.cspec",
+      "size": 12239
+    },
+    {
+      "path": "AARCH64/data/languages/AARCH64_win.cspec",
+      "size": 9510
+    },
+    {
+      "path": "AARCH64/data/languages/AppleSilicon.ldefs",
+      "size": 1001
+    },
+    {
+      "path": "x86/data/languages/x86-16-real.pspec",
+      "size": 944
+    },
+    {
+      "path": "x86/data/languages/x86-16.cspec",
+      "size": 4862
+    },
+    {
+      "path": "x86/data/languages/x86-16.pspec",
+      "size": 955
+    },
+    {
+      "path": "x86/data/languages/x86-32-golang.cspec",
+      "size": 8897
+    },
+    {
+      "path": "x86/data/languages/x86-64-compat32.pspec",
+      "size": 7124
+    },
+    {
+      "path": "x86/data/languages/x86-64-gcc.cspec",
+      "size": 12182
+    },
+    {
+      "path": "x86/data/languages/x86-64-golang.cspec",
+      "size": 13124
+    },
+    {
+      "path": "x86/data/languages/x86-64-swift.cspec",
+      "size": 8266
+    },
+    {
+      "path": "x86/data/languages/x86-64-win.cspec",
+      "size": 7474
+    },
+    {
+      "path": "x86/data/languages/x86-64.pspec",
+      "size": 11721
+    },
+    {
+      "path": "x86/data/languages/x86-64.sla",
+      "size": 487654
+    },
+    {
+      "path": "x86/data/languages/x86.ldefs",
+      "size": 5390
+    },
+    {
+      "path": "x86/data/languages/x86.opinion",
+      "size": 6470
+    },
+    {
+      "path": "x86/data/languages/x86.pspec",
+      "size": 9859
+    },
+    {
+      "path": "x86/data/languages/x86.sla",
+      "size": 432440
+    },
+    {
+      "path": "x86/data/languages/x86borland.cspec",
+      "size": 4238
+    },
+    {
+      "path": "x86/data/languages/x86delphi.cspec",
+      "size": 2740
+    },
+    {
+      "path": "x86/data/languages/x86gcc.cspec",
+      "size": 12938
+    },
+    {
+      "path": "x86/data/languages/x86win.cspec",
+      "size": 10875
+    }
+  ]
+}

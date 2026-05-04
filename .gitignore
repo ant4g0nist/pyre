@@ -2,6 +2,13 @@
 **/build/
 **/dist/
 
+# ...except the staged SLEIGH specs. They're "build output" in the
+# sense that stage-specs.sh produces them, but committing lets CI
+# skip compiling Ghidra and gives the deployed site a complete spec
+# set out of the box. ~1.6 MB for x86 + AArch64.
+!specs/dist/
+!specs/dist/**
+
 # Node
 **/node_modules/
 **/.vite/

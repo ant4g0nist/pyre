@@ -101,9 +101,13 @@ export const useWorkspace = create<WorkspaceState>((set, get) => ({
       if (prev.client) prev.client.terminate();
 
       const client = new DecompilerClient();
+      // import.meta.env.BASE_URL is `/` in dev and `/<repo>/` under
+      // a GH Pages project page — vite injects it at build time so
+      // the same code works in both deployment shapes.
+      const base = import.meta.env.BASE_URL;
       await client.init({
-        specBaseUrl: "/specs/",
-        manifestUrl: "/specs/manifest.json",
+        specBaseUrl: `${base}specs/`,
+        manifestUrl: `${base}specs/manifest.json`,
         arch: binary.arch,
       });
       const session = await client.open({

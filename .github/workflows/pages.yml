@@ -1,0 +1,75 @@
+# Build the wasm decompiler + the React frontend, deploy to GitHub
+# Pages. Runs on every push to main, plus on demand via the Actions
+# tab. Project page URL: https://<owner>.github.io/<repo>/
+#
+# Caches:
+#   - emsdk install (~1 GB) — keyed on a fixed version tag so cache
+#     stays warm until we bump
+#   - npm dependencies — keyed on package-lock.json hash
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Single in-flight run; queued pushes coalesce.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install + activate emsdk
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 4.0.16
+          actions-cache-folder: emsdk-cache
+
+      - name: Build wasm decompiler
+        run: ./decompiler-wasm/build.sh
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build web (with /<repo>/ base path)
+        working-directory: web
+        env:
+          # GH Pages project page lives under the repo name. github.event.repository.name
+          # gives us "pyre" (or whatever the repo gets renamed to) without
+          # hard-coding it here.
+          BASE_PATH: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

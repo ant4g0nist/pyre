@@ -8,6 +8,11 @@ import { fileURLToPath } from "node:url";
 // excluded from optimization preserves emscripten's native loading
 // path while still letting the worker `import` from it.
 export default defineConfig({
+  // GH Pages project page lives at https://<user>.github.io/<repo>/
+  // — vite needs `base` so emitted asset URLs include that prefix.
+  // Local dev + user/org pages live at /, so default to that and
+  // override via env in CI.
+  base: process.env.BASE_PATH || "/",
   plugins: [react()],
   resolve: {
     alias: {
