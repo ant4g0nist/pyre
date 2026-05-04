@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* react-resizable-panels handle */
+[data-panel-resize-handle-enabled] {
+  background: transparent;
+  transition: background-color 100ms ease;
+}
+[data-panel-resize-handle-enabled]:hover,
+[data-panel-resize-handle-enabled][data-resize-handle-active] {
+  background: theme("colors.accent.DEFAULT");
+  opacity: 0.6;
+}
+
+/* Monaco overrides — hide the minimap by default; the function list
+   already gives spatial navigation, and the minimap clutters narrow
+   panes. */
+.monaco-editor .minimap { display: none !important; }

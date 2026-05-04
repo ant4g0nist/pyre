@@ -1,0 +1,22 @@
+# Build outputs
+**/build/
+**/dist/
+
+# Node
+**/node_modules/
+**/.vite/
+*.tsbuildinfo
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs / coverage
+*.log
+coverage/
+
+# Local agent / tooling state
+.claude/

@@ -1,0 +1,1 @@
+../../../decompiler-wasm/dist/pyre_decompiler.js
