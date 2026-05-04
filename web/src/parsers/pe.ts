@@ -1,6 +1,7 @@
 // Minimal PE parser. Reads the optional header to find ImageBase,
-// each IMAGE_SECTION_HEADER for region/readonly, and the export table
-// for named functions. Doesn't process imports or relocations.
+// each IMAGE_SECTION_HEADER for region/readonly, the export table,
+// and the COFF symbol table for named functions. Doesn't process
+// imports or relocations.
 
 import type { ParsedBinary } from "@/decompiler/types";
 import { archFromPe } from "@/decompiler/arch-map";
@@ -99,6 +100,59 @@ export async function parsePe(bytes: Uint8Array): Promise<ParsedBinary> {
     }
   }
 
+  // COFF symbol table — present in MinGW/binutils output (and any
+  // /DEBUG:DBGHELP build), absent from /DEBUG:PDB-only MSVC builds.
+  // PointerToSymbolTable + NumberOfSymbols * 18-byte records, with a
+  // string table immediately after for names longer than 8 bytes.
+  const symTabPtr = dv.getUint32(peOff + 12, true);
+  const numSyms = dv.getUint32(peOff + 16, true);
+  if (symTabPtr > 0 && numSyms > 0 && symTabPtr + numSyms * 18 <= bytes.length) {
+    const stringTabOff = symTabPtr + numSyms * 18;
+    let i = 0;
+    while (i < numSyms) {
+      const eo = symTabPtr + i * 18;
+      const numAux = bytes[eo + 17];
+      const value = dv.getUint32(eo + 8, true);
+      const sectionNumber = dv.getInt16(eo + 12, true);
+      const typeField = dv.getUint16(eo + 14, true);
+      const storageClass = bytes[eo + 16];
+
+      // High nibble of Type is the "complex type"; 2 = DT_FCN.
+      const isFunction = ((typeField >> 4) & 0xf) === 2;
+      // EXTERNAL(2) or STATIC(3); skip LABEL/FILE/SECTION/etc.
+      const isCodeStorage = storageClass === 2 || storageClass === 3;
+      if (
+        isFunction &&
+        isCodeStorage &&
+        sectionNumber > 0 &&
+        sectionNumber <= sections.length
+      ) {
+        let name: string;
+        if (dv.getUint32(eo, true) === 0) {
+          // Long name: bytes[4..7] is offset into string table.
+          const strOff = dv.getUint32(eo + 4, true);
+          const start = stringTabOff + strOff;
+          let end = start;
+          while (end < bytes.length && bytes[end] !== 0) end++;
+          name = new TextDecoder().decode(bytes.subarray(start, end));
+        } else {
+          name = readNul(bytes, eo, 8);
+        }
+        // i386 MinGW prefixes a leading underscore (`_main`); x86_64
+        // does not. Strip on i386 so the libc prototype matcher and
+        // xref display match the C-level name.
+        if (machine === 0x14c && name.startsWith("_")) name = name.slice(1);
+        if (name) {
+          const sec = sections[sectionNumber - 1];
+          const addr = imageBase + sec.rva + BigInt(value);
+          symbols.push([addr, name]);
+          functions.push({ addr, name });
+        }
+      }
+      i += 1 + numAux;
+    }
+  }
+
   // Strings from readonly regions.
   const strings: [bigint, number][] = [];
   for (const region of regions) {
@@ -120,6 +174,17 @@ export async function parsePe(bytes: Uint8Array): Promise<ParsedBinary> {
   // EntryPoint RVA at offset 16 of optional header.
   const epRva = dv.getUint32(optHeaderOff + 16, true);
   const entryPoint = epRva > 0 ? imageBase + BigInt(epRva) : undefined;
+
+  // Stripped MSVC builds have neither exports nor a COFF symbol table.
+  // Surface the entry point as a synthetic symbol so the user has at
+  // least one click-target. Real symbols at the same address are kept
+  // (we only insert when no existing function lands on entryPoint).
+  if (entryPoint != null && !uniqFunctions.some((f) => f.addr === entryPoint)) {
+    const ep = entryPoint;
+    let i = uniqFunctions.findIndex((f) => f.addr > ep);
+    if (i < 0) i = uniqFunctions.length;
+    uniqFunctions.splice(i, 0, { addr: ep, name: "entry" });
+  }
 
   return {
     format: "pe",

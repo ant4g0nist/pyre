@@ -174,6 +174,12 @@ export async function parseElf(bytes: Uint8Array): Promise<ParsedBinary> {
     return true;
   });
 
+  // Stripped binary fallback: surface e_entry (typically _start) so
+  // the user has somewhere to click when no symbols survive.
+  if (e_entry !== 0n && !uniqFunctions.some((f) => f.addr === e_entry)) {
+    uniqFunctions.push({ addr: e_entry, name: "entry" });
+  }
+
   return {
     format: "elf",
     arch: archInfo.arch,
